@@ -80,3 +80,4 @@ theorem deMorganAnd (p : Prop) (q: Prop) : ¬(p ∧ q) ↔ (¬p ∨ ¬q) :=
 
 -- prints the type of deMorganAnd.
 check deMorganAnd
+
