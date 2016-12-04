@@ -1,16 +1,3 @@
--- Defining this axiom is cheating,
--- as it allows us to prove any Prop,
--- giving rise to a complete, but inconsistent logic.
--- However, *using* this axiom may or may not be cheating.
--- Using the axiom is equivalent to a mathematician saying
--- "it is easy to see that".
--- We will use this axiom to postulate a lemma without proof.
--- We can comment it out when we give proofs of all the lemmas.
-
--- this allows us to prove anything!
--- axiom always : Π (p : Prop), p
-
-
 -- `variable` is an unfortunate name, conflicting
 -- with usual meaning of the word.
 -- `p` and `q` are *implicit parameters*
@@ -69,8 +56,7 @@ lemma deMorganAndRight : (¬p ∨ ¬q) → ¬(p ∧ q) :=
 -- In order to be completely certain about the proof,
 -- one has to additionally check that:
 -- 1. No additional `axioms` have been defined.
---    Some axioms, like my `always` axiom can lead to
---    inconsistent foundations.
+--    Some axioms can lead to inconsistent foundations.
 -- 2. The statement of the theorem is correct, i.e.
 --    in our case deMorganAnd really *does* correspond
 --    to one of the theorems commonly referred to as de Morgan's laws.
