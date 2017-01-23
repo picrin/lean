@@ -55,23 +55,34 @@ example : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
 
 ------ NOT FOR ALL ------
 
+lemma doubleNegate : r → ¬ ¬ r := assume (Hr : r) (nHr : ¬ r), nHr Hr
 
-lemma right : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
+lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
     assume Hexists : (∃ x, p x),
     assume Hforall : ((∀ x, ¬ p x)),
     show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x P
-    
+
+lemma existsFalseNotForall : (∃ x, ¬ p x) → ¬ (∀ x, p x) :=
+    assume H : (∃ x, ¬ p x),
+    assume H1 : (∀ x, p x),
+    have H1Rewr : (∀ x, ¬ ¬ p x), from (λ (x : A), doubleNegate (p x) (H1 x)), 
+    have flema : (∃ x, ¬ p x) → ¬ (∀ x, ¬ ¬ p x), from (existsNotForall A (λ (a : A), ¬ p a)),
+    have notForall : ¬ (∀ x, ¬ ¬ p x), from flema H,
+    show false, from notForall H1Rewr
+
 open classical
-        
-lemma left : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
+
+lemma notForallExists : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
     assume H : (∀ x, p x) → false,
-    have S1 : Π y, p y ∨ ¬ p y, from take (v : A), em (p v),
+    have S1 : Π y, p y ∨ ¬ p y, from take (y : A), em (p y),
     have S3 : Π y, p y ∨ (∃ x, ¬ p x), from take (y : A), or.elim (S1 y)
         (λ (Hp : p y), or.intro_left (∃ x, ¬ p x) Hp)
         (λ (Hnp : ¬ p y), or.intro_right (p y) (exists.intro y Hnp)),
     show (∃ x, ¬ p x), from by_contradiction
         (assume Hnexist : ¬ (∃ x, ¬ p x),
             have S4 : Π y, p y, from take (y : A), or.elim (S3 y)
-                    (λ (Hp : p y), Hp)
-                    (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
-                show false, from H S4)
+                (λ (Hp : p y), Hp)
+                (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
+            show false, from H S4)
+
+theorem notForall : ¬ (∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
