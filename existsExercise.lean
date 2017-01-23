@@ -46,3 +46,91 @@ example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
 example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
 example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
 
+variables (A : Type) (p q : A → Prop)
+variable a : A
+variable r : Prop
+
+open classical
+
+example : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
+    assume Hexists : (∃ x, p x),
+    assume Hforall : ((∀ x, ¬ p x)),
+    show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x P
+    
+
+lemma X2 : Π (A : Type) (a : A) (p : A -> Prop), ((∀ x, p x) → false) → (p a → false)  := 
+    λ (A : Type),
+        λ (a : A),
+            λ (p : A → Prop),
+                λ (H : (∀ x, p x) → false), H 
+
+
+lemma X1 : (¬ (∀ x, p x)) → (∃ x, ¬ p x) := 
+    assume H : (∀ x, p x) → false,
+    or.elim (em (p a))
+    (assume (Hpa : p a), sorry) sorry
+    --have H1 : p a → false, from λ (Hpa : (p a)), (H (λ (a : A), Hpa)), sorry
+
+variable H : (∀ x, p x) → false
+
+
+check @exists.intro
+
+--example : (¬ (∀ x, ¬ p x)) → (∃ x, p x) :=
+--    assume H_all_outer : ¬ (∀ x, ¬ p x),
+--    false.elim (H_all_outer (assume (x : A), assume (Hpx : p x), exists.intro x Hpx))
+    --have Hforall : (∀ x, (p x) → false), from dne Hforallnot, sorry
+    --show (∃ x, p x), from (exists.intro (a : A) (false.elim (Hforall (λ (a' : A), λ (Hpx : p a'), Hpx  ))))
+    --have (p a → false) → false, from Hforall a, sorry
+    --show (∃ x, p x), from exists.intro
+
+
+
+example : (∃ x, p x) → ¬ (∀ x, ¬ p x) := 
+    assume Hexists : (∃ x, p x),
+    assume Hforall : ((∀ x, ¬ p x)),
+    show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x P
+    
+example : ¬ (∀ x, ¬ p x) → (∃ x, p x) := 
+    assume Hforall : (∀ x, (p x) → false) → false,
+    show (∃ x, p x), from (exists.intro (a : A) (false.elim (Hforall (λ (a' : A), λ (Hpx : p a'), Hpx  ))))
+    --have (p a → false) → false, from Hforall a, sorry
+    --show (∃ x, p x), from exists.intro 
+
+--check @exists.intro
+--check exists.intro
+
+
+variable x : Π (a : A), Prop
+
+--check ((Π (a : A), Prop) : Type)
+
+--example : (∃ x, p x) → ¬ (∀ x, ¬ p x) := 
+--    assume Hexists : (∃ x, p x),
+--    assume Hforall : ((∀ x, ¬ p x)),
+--show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x (P)
+
+
+###### NOT FOR ALL ######
+
+variables (A : Type) (p : A → Prop)
+
+lemma right : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
+    assume Hexists : (∃ x, p x),
+    assume Hforall : ((∀ x, ¬ p x)),
+    show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x P
+    
+open classical
+        
+lemma left : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
+    assume H : (∀ x, p x) → false,
+    have S1 : Π y, p y ∨ ¬ p y, from take (v : A), em (p v),
+    have S3 : Π y, p y ∨ (∃ x, ¬ p x), from take (y : A), or.elim (S1 y)
+        (λ (Hp : p y), or.intro_left (∃ x, ¬ p x) Hp)
+        (λ (Hnp : ¬ p y), or.intro_right (p y) (exists.intro y Hnp)),
+    show (∃ x, ¬ p x), from by_contradiction
+        (assume Hnexist : ¬ (∃ x, ¬ p x),
+            have S4 : Π y, p y, from take (y : A), or.elim (S3 y)
+                    (λ (Hp : p y), Hp)
+                    (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
+                show false, from H S4)
