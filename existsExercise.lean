@@ -4,57 +4,6 @@ variables (A : Type) (p q : A → Prop)
 variable a : A
 variable r : Prop
 
-example : (∃ x : A, r) → r := 
-    assume S1 : (∃ x : A, r),
-    have S2 : (A → r → r), from (λ a : A, λ Hr : r, Hr),
-    (exists.elim S1) S2
-
-theorem t1 : r → (Exists (λ x : A, r)) := assume Hr : r, exists.intro a Hr
-
-example : (∃ x, p x ∧ r) → (∃ x, p x) ∧ r := assume H : (Exists (λ x : A, p x ∧ r)),
-    have S1 : (Π (x : A), p x ∧ r → ((∃ x, p x) ∧ r)) → (∃ x, p x) ∧ r, from exists.elim H,
-    have S2 : Π (x : A), p x ∧ r → ((∃ x, p x) ∧ r), from
-        assume x : A,
-            take S3 : p x ∧ r, and.intro (exists.intro x (and.elim_left S3)) (and.elim_right S3),
-    S1 S2
-
-example : (∃ x, p x) ∧ r → (∃ x, p x ∧ r) :=
-    assume H : (∃ x, p x) ∧ r,
-    have S1 : (∃ x, p x), from and.elim_left H,
-    have S2 : r, from and.elim_right H,
-    obtain (x : A) (K : p x), from S1, exists.intro x (and.intro K S2)
-
-example : (∃ x, p x) ∧ r → (∃ x, p x ∧ r) :=
-    assume H : (∃ x, p x) ∧ r,
-    have S1 : (∃ x, p x), from and.elim_left H,
-    have S2 : r, from and.elim_right H,
-    have S3 : (Π (x : A), p x → (∃ x, p x ∧ r)) → (∃ x, p x ∧ r), from exists.elim S1,
-    have S4 : (Π (x : A), p x → (∃ x, p x ∧ r)), from
-        (assume x : A, take K : p x, exists.intro x (and.intro K S2)),
-    S3 S4
-
---open classical
-
---example : (∃ x, p x ∨ q x) → (∃ x, p x) ∨ (∃ x, q x) := sorry
-
-example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
-example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
-example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
-
-example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
-example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
-example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
-
-example : (∃ x, p x) → ¬ (∀ x, ¬ p x) := 
-    assume Hexists : (∃ x, p x),
-    assume Hforall : ((∀ x, ¬ p x)),
-    show false, from obtain (x : A) (P : p x ), from Hexists, Hforall x P
-    
-
-
------- NOT FOR ALL ------
-
 lemma doubleNegate : r → ¬ ¬ r := assume (Hr : r) (nHr : ¬ r), nHr Hr
 
 lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
@@ -70,8 +19,6 @@ lemma existsFalseNotForall : (∃ x, ¬ p x) → ¬ (∀ x, p x) :=
     have notForall : ¬ (∀ x, ¬ ¬ p x), from flema H,
     show false, from notForall H1Rewr
 
-open classical
-
 lemma notForallExists : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
     assume H : (∀ x, p x) → false,
     have S1 : Π y, p y ∨ ¬ p y, from take (y : A), em (p y),
@@ -85,4 +32,28 @@ lemma notForallExists : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
                 (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
             show false, from H S4)
 
-theorem notForall : ¬ (∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
+example : (∃ x : A, r) → r := 
+    assume S1 : (∃ x : A, r),
+    have S2 : (A → r → r), from (λ a : A, λ Hr : r, Hr),
+    (exists.elim S1) S2
+    
+example : r → (∃ x : A, r) := λ (Hr : r), exists.intro a Hr
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := iff.intro
+    (λ (HexistTogether : (∃ x, p x ∧ r)),
+        obtain (x : A) (Hpxr : p x ∧ r), from HexistTogether, 
+        and.intro (exists.intro x (and.elim_left Hpxr)) (and.elim_right Hpxr))
+    (λ (HexistSeparately : (∃ x, p x) ∧ r),
+        obtain (x : A) (Hpx : p x), from and.elim_left HexistSeparately,
+        exists.intro x (and.intro Hpx (and.elim_right HexistSeparately)))
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := sorry
+
+example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
+example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
