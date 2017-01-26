@@ -47,7 +47,20 @@ example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := iff.intro
         obtain (x : A) (Hpx : p x), from and.elim_left HexistSeparately,
         exists.intro x (and.intro Hpx (and.elim_right HexistSeparately)))
 
-example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := sorry
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := 
+    iff.intro
+        (assume (H : (∃ x, p x ∨ q x)),
+            obtain (x : A) (Por : p x ∨ q x), from H, (or.elim Por)
+                (assume Hpx : p x, or.intro_left (∃ x, q x) (exists.intro x Hpx))
+                (assume Hqx : q x, or.intro_right (∃ x, p x) (exists.intro x Hqx)))
+        (assume (H : (∃ x, p x) ∨ (∃ x, q x)),
+            or.elim H
+                (assume (left : (∃ x, p x)),
+                    obtain (x : A) (Hpx : p x), from left,
+                        exists.intro x (or.intro_left (q x) Hpx))
+                (assume (right : (∃ x, q x)),
+                    obtain (x : A) (Hqx : q x), from right,
+                        exists.intro x (or.intro_right (p x) Hqx)))
 
 example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
 example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
