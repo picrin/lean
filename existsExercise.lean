@@ -62,11 +62,33 @@ example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
                     obtain (x : A) (Hqx : q x), from right,
                         exists.intro x (or.intro_right (p x) Hqx)))
 
-example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := sorry
-example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
+example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := 
+    iff.intro
+    (assume (H : ∀ x, p x),
+        (assume (H1 : (∃ x, ¬ p x)),
+            obtain (x : A) (Pnx : ¬ p x), from H1,
+            have p x, from H x,
+            show false, from `¬ p x` `p x`))
+    (assume (H: ¬ (∃ x, ¬ p x)),
+        (λ (x : A), show p x, from by_contradiction
+            (λ (H1 : ¬ p x), (show false, from
+                have H2 : (∃ x, ¬ p x), from exists.intro x H1, H H2))))
+
+example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := 
+    iff.intro
+    (assume H : (∃ x, p x),
+        (λ (H1 : (∀ x, ¬ p x)),
+            obtain (x : A) (Hpx : p x), from H,
+            H1 x Hpx))
+    (assume H : ¬ (∀ x, ¬ p x), show (∃ x, p x),
+        from by_contradiction (λ (H3 : (∀ x, ¬ p x)), sorry))
+
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+
 example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
 
 example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+
 example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+
 example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
