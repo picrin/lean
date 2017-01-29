@@ -32,6 +32,20 @@ lemma notForallExists : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
                 (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
             show false, from H S4)
 
+theorem distributiveForAll : (∀ (x : A), r ∨ p x) ↔ (r ∨ ∀ (x : A), p x) :=
+    iff.intro
+        (λ (H : (∀ (x : A), r ∨ p x)),
+        show (r ∨ ∀ (x : A), p x), from or.elim (em r)
+            (λ (Pr : r), or.intro_left (∀ (y : A), p y) (Pr))
+            (λ (Pnr : ¬r), or.intro_right r
+                (λ (y : A), or.elim (H y)
+                    (λ (Pr : r), false.elim (Pnr Pr))
+                    (λ (Ppy : p y), Ppy))))
+        (λ (H : (r ∨ ∀ (x : A), p x)), or.elim H
+            (λ (Pr : r), ( λ (x : A), or.intro_left (p x) Pr))
+            (λ (PApx : (∀ (x : A), p x)), (λ (x : A), or.intro_right (r) (PApx x))))
+
+
 example : (∃ x : A, r) → r := 
     assume S1 : (∃ x : A, r),
     have S2 : (A → r → r), from (λ a : A, λ Hr : r, Hr),
@@ -81,7 +95,7 @@ example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
             obtain (x : A) (Hpx : p x), from H,
             H1 x Hpx))
     (assume H : ¬ (∀ x, ¬ p x), show (∃ x, p x),
-        from by_contradiction (λ (H3 : (∀ x, ¬ p x)), sorry))
+        from sorry)
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
 
