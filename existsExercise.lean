@@ -94,10 +94,21 @@ example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
         (λ (H1 : (∀ x, ¬ p x)),
             obtain (x : A) (Hpx : p x), from H,
             H1 x Hpx))
-    (assume H : ¬ (∀ x, ¬ p x), show (∃ x, p x),
-        from sorry)
+    (assume H : ¬ (∀ x, ¬ p x), show (∃ x, p x), from
+        have S1 : (∀ x, p x ∨ ¬ p x), from (λ (x : A), em (p x)),
+        have S2 : (∀ x, (∃ y, p y) ∨ ¬ p x), from (λ (x : A), or.elim (S1 x)
+            (λ (Hpx : p x), or.intro_left (¬ p x) (exists.intro x Hpx))
+            (λ (Hnpx : ¬ p x), or.intro_right (∃ x, p x) Hnpx)),
+        have S3 : ((∃ y, p y) ∨ (∀ x, ¬ p x)),
+            from (iff.elim_left (distributiveForAll A (λ (x : A), ¬ p x) (∃ y, p y))) S2,
+            show (∃ y, p y), from or.elim S3 (λ (Hexists : (∃ y, p y)), Hexists) (λ (HforallNot : (∀ x, ¬ p x)), false.elim(H HforallNot)))
 
-example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
+    iff.intro
+        (λ (H : ¬ ∃ x, p x), (λ (x : A),
+            λ (Hpx : p x),
+                H (exists.intro x Hpx)))
+        (λ (H : (∀ x, ¬ p x)), sorry)
 
 example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
 
