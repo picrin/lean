@@ -11,7 +11,10 @@ lemma doubleNegateRev {r : Prop} : ¬ ¬ r → r :=
         have r ∨ ¬ r, from em r,
         or.elim `r ∨ ¬r` (λ (H : r), H) (λ (H : ¬ r), false.elim (Hr H))
 
-lemma compose {p q r : Prop} : (p → q) → (q → r) → (p → r) := sorry
+lemma compose {p q r : Prop} : (p → q) → (q → r) → (p → r) := 
+    λ (H : (p → q)),
+        λ (H1 : (q → r)),
+            λ (Hp : p), H1 (H Hp)
 
 
 lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
@@ -178,6 +181,7 @@ example : (∃ x, r → p x) → (r → ∃ x, p x) :=
 
 example : (r → ∃ x, p x) → (∃ x, r → p x) :=
     λ H : (r → ∃ x, p x),
-        have r → r → ∃ x, p x, from λ Pr : r, H,
-        sorry
-        --exists.intro a (λ Pr : r, obtain (x : A) (Ppx : p x), from (H Pr), Ppx)
+        or.elim (em r)
+	    (λ Pr : r, obtain (x : A) (Ppx : p x), from (H Pr), exists.intro x (λ Pr : r, Ppx))
+	    (λ Pnr : ¬r, have r → p a, from (λ Pr : r, false.elim (Pnr Pr)),
+                exists.intro a `r → p a`)
