@@ -4,7 +4,15 @@ variables (A : Type) (p q : A → Prop)
 variable a : A
 variable r : Prop
 
-lemma doubleNegate : r → ¬ ¬ r := assume (Hr : r) (nHr : ¬ r), nHr Hr
+lemma doubleNegate {r : Prop} : r → ¬ ¬ r := assume (Hr : r) (nHr : ¬ r), nHr Hr
+
+lemma doubleNegateRev {r : Prop} : ¬ ¬ r → r :=
+    assume (Hr : ¬ ¬ r),
+        have r ∨ ¬ r, from em r,
+        or.elim `r ∨ ¬r` (λ (H : r), H) (λ (H : ¬ r), false.elim (Hr H))
+
+lemma compose {p q r : Prop} : (p → q) → (q → r) → (p → r) := sorry
+
 
 lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
     assume Hexists : (∃ x, p x),
@@ -14,7 +22,7 @@ lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
 lemma existsFalseNotForall : (∃ x, ¬ p x) → ¬ (∀ x, p x) :=
     assume H : (∃ x, ¬ p x),
     assume H1 : (∀ x, p x),
-    have H1Rewr : (∀ x, ¬ ¬ p x), from (λ (x : A), doubleNegate (p x) (H1 x)), 
+    have H1Rewr : (∀ x, ¬ ¬ p x), from (λ (x : A), doubleNegate (H1 x)), 
     have flema : (∃ x, ¬ p x) → ¬ (∀ x, ¬ ¬ p x), from (existsNotForall A (λ (a : A), ¬ p a)),
     have notForall : ¬ (∀ x, ¬ ¬ p x), from flema H,
     show false, from notForall H1Rewr
@@ -88,7 +96,7 @@ example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
             (λ (H1 : ¬ p x), (show false, from
                 have H2 : (∃ x, ¬ p x), from exists.intro x H1, H H2))))
 
-example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := 
+lemma existsEqNotForall : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := 
     iff.intro
     (assume H : (∃ x, p x),
         (λ (H1 : (∀ x, ¬ p x)),
@@ -103,17 +111,73 @@ example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
             from (iff.elim_left (distributiveForAll A (λ (x : A), ¬ p x) (∃ y, p y))) S2,
             show (∃ y, p y), from or.elim S3 (λ (Hexists : (∃ y, p y)), Hexists) (λ (HforallNot : (∀ x, ¬ p x)), false.elim(H HforallNot)))
 
+lemma contrapositive {p : Prop} {q : Prop} : (p → q) → (¬ q → ¬p) := 
+    assume (H : (p → q)),
+        assume (S1 : ¬ q),
+            assume (S2 : p), S1 (H S2)
+
+lemma iffContr {p : Prop} {q : Prop} : (p ↔ q) → (¬ p ↔ ¬ q) := 
+    (λ (H : p ↔ q),
+        have p → q, from iff.elim_left H,
+        have q → p, from iff.elim_right H,
+        iff.intro (contrapositive `q → p`) (contrapositive `p → q`))
+
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
     iff.intro
         (λ (H : ¬ ∃ x, p x), (λ (x : A),
             λ (Hpx : p x),
                 H (exists.intro x Hpx)))
-        (λ (H : (∀ x, ¬ p x)), sorry)
+        (have S1 : (∃ x, p x) → ¬ (∀ x, ¬ p x), from  existsNotForall A p,
+            have S2 : ¬ ¬ (∀ x, ¬ p x) → ¬ (∃ x, p x), from contrapositive S1,
+            show (∀ x, ¬ p x) → ¬ (∃ x, p x), from compose
+                (λ (H : (∀ x, ¬ p x)), doubleNegate H)
+                (S2 : ¬ ¬ (∀ x, ¬ p x) → ¬ (∃ x, p x)))
+
+example : (∀ x, r → p x) → (r → ∀ x, p x) := 
+    (λ (H : (∀ x, r → p x)), λ (Pr : r), λ (x : A), H x Pr)
+
+example : (r → ∀ x, p x) → (∀ x, r → p x) := 
+    (λ (H : (r → ∀ x, p x)), λ (x : A), λ (Pr : r), (H Pr) x)
 
 example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro (notForallExists A p) (existsFalseNotForall A p)
 
-example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+example : (∀ x, p x → r) → (∃ x, p x) → r := 
+    assume (H : (∀ x, p x → r)), λ (H1 : (∃ x, p x)),
+        obtain (x : A) (H2 : p x), from H1, H x H2
 
-example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+example : ((∃ x, p x) → r) → (∀ x, p x → r) := 
+    assume (H : (∃ x, p x) → r),
+        λ (x : A),
+            λ (Ppx : p x),
+                H (exists.intro x Ppx)
 
-example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+example : (∃ x, p x → r) → (∀ x, p x) → r := 
+    λ (H : (∃ x, p x → r)),
+        λ (H1 : (∀ x, p x)),
+            obtain (x : A) (Hpxr : p x → r), from H,
+                Hpxr (H1 x)
+
+example : ((∀ x, p x) → r) → (∃ x, p x → r) :=
+    λ H : (∀ x, p x) → r,
+        have S1 : ∀ x, (p x ∨ ¬ p x), from λ (x : A), em (p x),
+        have S2 : ∀ x, (∃ x, ¬ p x) ∨ p x, from λ (x : A), or.elim (S1 x)
+            (λ H : p x, or.intro_right (∃ x, ¬ p x) H)
+            (λ H : ¬ p x, or.intro_left (p x) (exists.intro x H)),
+        have S3 : ((∃ x, ¬ p x) ∨ ∀ x, p x),
+            from (iff.elim_left (distributiveForAll A (λ x : A, p x) (∃ x, ¬ p x))) S2,
+        or.elim S3
+            (λ S4 : (∃ x, ¬ p x),
+                obtain (x : A) (Pnx : ¬ p x), from S4,
+                    exists.intro x (λ H : p x, false.elim (Pnx H)))
+            (λ S5 : ∀ x, p x, exists.intro a ( λ H1 : p a, H S5))
+
+example : (∃ x, r → p x) → (r → ∃ x, p x) :=
+    λ H : (∃ x, r → p x),
+        obtain (x : A) (P : r → p x), from H,
+        λ (Pr : r), exists.intro x (P Pr)
+
+example : (r → ∃ x, p x) → (∃ x, r → p x) :=
+    λ H : (r → ∃ x, p x),
+        have r → r → ∃ x, p x, from λ Pr : r, H,
+        sorry
+        --exists.intro a (λ Pr : r, obtain (x : A) (Ppx : p x), from (H Pr), Ppx)
