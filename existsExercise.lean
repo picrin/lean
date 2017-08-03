@@ -16,11 +16,12 @@ lemma compose {p q r : Prop} : (p → q) → (q → r) → (p → r) :=
         λ (H1 : (q → r)),
             λ (Hp : p), H1 (H Hp)
 
-
 lemma existsNotForall : (∃ x, p x) → ¬ (∀ x, ¬ p x) :=
     assume Hexists : (∃ x, p x),
     assume Hforall : ((∀ x, ¬ p x)),
     exists.elim Hexists (assume a : A, Hforall a)
+
+#check exists.elim
 
 lemma existsFalseNotForall : (∃ x, ¬ p x) → ¬ (∀ x, p x) :=
     assume H : (∃ x, ¬ p x),
@@ -32,13 +33,13 @@ lemma existsFalseNotForall : (∃ x, ¬ p x) → ¬ (∀ x, p x) :=
 
 lemma notForallExists : ¬ (∀ x, p x) → (∃ x, ¬ p x) :=
     assume H : (∀ x, p x) → false,
-    have S1 : Π y, p y ∨ ¬ p y, from take (y : A), em (p y),
-    have S3 : Π y, p y ∨ (∃ x, ¬ p x), from take (y : A), or.elim (S1 y)
+    have S1 : Π y, p y ∨ ¬ p y, from assume (y : A), em (p y),
+    have S3 : Π y, p y ∨ (∃ x, ¬ p x), from assume (y : A), or.elim (S1 y)
         (λ (Hp : p y), or.intro_left (∃ x, ¬ p x) Hp)
         (λ (Hnp : ¬ p y), or.intro_right (p y) (exists.intro y Hnp)),
     show (∃ x, ¬ p x), from by_contradiction
         (assume Hnexist : ¬ (∃ x, ¬ p x),
-            have S4 : Π y, p y, from take (y : A), or.elim (S3 y)
+            have S4 : Π y, p y, from assume (y : A), or.elim (S3 y)
                 (λ (Hp : p y), Hp)
                 (λ (Hexists : (∃ x, ¬ p x)), false.elim (Hnexist Hexists)),
             show false, from H S4)
@@ -77,12 +78,14 @@ example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := iff.intro
                 (assume (x : A), assume (Hpx : p x),
                     exists.intro x (and.intro Hpx (and.elim_right HexistSeparately))))
 
+#check exists.elim
+
 example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
     iff.intro
         (assume (H : (∃ x, p x ∨ q x)),
-            obtain (x : A) (Por : p x ∨ q x), from H, (or.elim Por)
+            exists.elim H (assume x : A, assume Por : p x ∨ q x, (or.elim Por)
                 (assume Hpx : p x, or.intro_left (∃ x, q x) (exists.intro x Hpx))
-                (assume Hqx : q x, or.intro_right (∃ x, p x) (exists.intro x Hqx)))
+                (assume Hqx : q x, or.intro_right (∃ x, p x) (exists.intro x Hqx))))
         (assume (H : (∃ x, p x) ∨ (∃ x, q x)),
             or.elim H
                 (assume (left : (∃ x, p x)),

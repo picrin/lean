@@ -17,3 +17,4 @@ theorem distributivity : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) :=
         ),
     show (p ∧ q) ∨ (p ∧ r), from Poe qi ri
 
+#check distributivity
