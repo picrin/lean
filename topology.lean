@@ -25,12 +25,12 @@ def dne {p : Prop} : ¬¬p → p :=
         (assume H : p, H)
         (assume H : ¬p, false.elim (H0 H))
 
-def set_deMorgan : a ∈ set.inter A B → a ∈ set.compl (set.union (set.compl A) (set.compl B)) :=
+def set_deMorgan : a ∈ A ∩ B → a ∈ set.compl ((set.compl A) ∪ (set.compl B)) :=
     λ H : a ∈ A ∧ a ∈ B,
     show ¬ (¬ a ∈ A ∨ ¬ a ∈ B), from prop_deMorgan H
 
-def set_deMorgan_incl : set.inter A B ⊆ set.compl (set.union (set.compl A) (set.compl B)) :=
-    have H : ∀ b : elem_type, b ∈ set.inter A B → b ∈ set.compl (set.union (set.compl A) (set.compl B)),
+def set_deMorgan_incl : A ∩ B ⊆ set.compl ((set.compl A) ∪ (set.compl B)) :=
+    have H : ∀ b : elem_type, b ∈ A ∩ B → b ∈ set.compl ((set.compl A) ∪ (set.compl B)),
         from λ (b : elem_type), @set_deMorgan elem_type b A B,
         H
 
@@ -40,10 +40,11 @@ def prop_deMorgan_conv {p : Prop} {q : Prop} (H : ¬ (¬p ∨ ¬q)) : p ∧ q :=
     have Pnnq : ¬¬q, from and.elim_right Pnnpnnq,
     show p ∧ q, from and.intro (dne Pnnp) (dne Pnnq)
 
-def set_deMorgan_conv (H : a ∈ set.compl (set.union (set.compl A) (set.compl B))) : a ∈ set.inter A B  :=
+def set_deMorgan_conv (H : a ∈ set.compl ((set.compl A) ∪ (set.compl B))) : a ∈ A ∩ B :=
     prop_deMorgan_conv H
 
-def set_deMorgan_incl_conv : set.compl (set.union (set.compl A) (set.compl B)) ⊆ set.inter A B :=
-    λ (b : elem_type), @set_deMorgan_conv elem_type b A B
+def set_deMorgan_incl_conv : set.compl ((set.compl A) ∪ (set.compl B)) ⊆ A ∩ B :=
+    λ (b : elem_type), @set_deMorgan_conv _ b _ _
 
-def set_deMorgan_eq : set.inter A B = set.compl (set.union (set.compl A) (set.compl B)) := sorry
+def set_deMorgan_eq : A ∩ B = set.compl ((set.compl A) ∪ (set.compl B)) :=
+    sorry
