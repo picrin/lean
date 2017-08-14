@@ -44,7 +44,10 @@ def set_deMorgan_conv (H : a ∈ set.compl ((set.compl A) ∪ (set.compl B))) : 
     prop_deMorgan_conv H
 
 def set_deMorgan_incl_conv : set.compl ((set.compl A) ∪ (set.compl B)) ⊆ A ∩ B :=
-    λ (b : elem_type), @set_deMorgan_conv _ b _ _
+    λ b, set_deMorgan_conv _ b _ _
 
 def set_deMorgan_eq : A ∩ B = set.compl ((set.compl A) ∪ (set.compl B)) :=
     sorry
+
+def set_deMorgan_eq_ext : A ∩ B = set.compl ((set.compl A) ∪ (set.compl B)) :=
+    subset.antisymm (set_deMorgan_incl _ _ _) (set_deMorgan_incl_conv _ _ _)
