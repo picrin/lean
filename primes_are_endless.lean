@@ -19,24 +19,50 @@ def prime_equiv_left : ∀ (p : nat) (Pp: is_prime p), (is_prime2 p) :=
             λ (Pmdp : is_divisible p k),
                 (or.elim (and.elim_left (Pp k Pmdp)) (λ P1 : k = 1, ne_of_lt b2 (eq.symm P1)) (λ P2 : k = p, ne_of_lt b1 P2)))
 
+def func1 : nat → nat := λ (n : nat), n + 1
+
+
+
 --def nat_in_three (k : nat) (p : nat) : k < p ∨ k = p ∨ p < k :=
 --    lt_trichotomy k p
 
 def prime_equiv_right_right : ∀ (p : nat) (Pp : is_prime2 p), ∀ (k : nat) (Pmdp : is_divisible p k), p ≠ 1 :=
-    λ (p : nat) (Pp : is_prime2 p), λ (k : nat) (Pmdp : is_divisible p k), λ (Ppo : p = 1), (Pp k) _ sorry sorry
+    λ (p : nat) (Pp : is_prime2 p), λ (k : nat) (Pmdp : is_divisible p k), λ (Ppo : p = 1), (Pp k) sorry sorry sorry
 
 variable q : (is_prime2 1)
 variable r : nat
 
-#check q 
+-- #check q 
 
-#check (q r : ∀ (b1 : r < 1) (b2 : 1 < r), (¬ is_divisible 1 r))
+--#check (q r : ∀ (b1 : r < 1) (b2 : 1 < r), (¬ is_divisible 1 r))
+
+def contrapositive (p : Prop) (q : Prop) (c : Prop) : (p → q) → ¬q → ¬p :=
+    λ (Ppiq : ∀ p, q), λ (Pnp : ¬q), λ Pp : p, Pnp (Ppiq Pp)
+
+open classical
+
+
+def rev_contrapositive (p : Prop) (q : Prop) (c : Prop) : (¬q → ¬p) → p → q :=
+    λ (H : ¬q → ¬p), λ (P : p), have Qornq: q ∨ ¬q, from classical.em q, or.elim Qornq (λ Q : q, Q) (λ (nQ : ¬q), false.elim(H nQ P))
+
+-- #check rev_contrapositive
+-- #check piqinq
+
+-- #check q
+
+def ppiqpiq {p : Prop} {q : Prop} (Ppiq : p → p → q) : (p → q) := 
+    λ P : p, Ppiq P P
 
 def one_is_not_prime : ¬ is_prime2 1 :=
-    -- todo prove
-    sorry
+    λ (one_is_prime : is_prime2 1),
+    have X : 1 < 1 → 1 < 1 → ¬is_divisible 1 1, from one_is_prime 1,
+    have Y : 1 < 1 → ¬is_divisible 1 1, from ppiqpiq X,
+    have Z : ¬ ¬ is_divisible 1 1 → ¬ 1 < 1, from sorry
 
 -- ∃ (x : nat) (is_prime x) ↔ ¬ ∀ (x : nat) ¬ is_prime x
+
+
+
 
 def lt_and_gt_false (a : nat) (b : nat) (P1: a < b) (P2: b < a) : false :=
     have P3: a < a, from lt_trans P1 P2,
@@ -52,8 +78,6 @@ def prime_equiv_right : ∀ (p : nat) (Pp : is_prime2 p), (is_prime p) :=
 
 --def small_prime : is_prime 2 :=
 --    sorry
-
-#check is_prime
 
 --#check (a: (is_divisible 2 4))
 
