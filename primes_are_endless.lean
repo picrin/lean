@@ -1,5 +1,4 @@
-def is_divisible: nat → nat → Prop :=
-    λ n m : nat, ∃ k : nat, m * k = n
+
 
 --def a : is_divisible 2 4 :=
 --    exists.intro sorry
@@ -53,14 +52,59 @@ def rev_contrapositive (p : Prop) (q : Prop) (c : Prop) : (¬q → ¬p) → p �
 def ppiqpiq {p : Prop} {q : Prop} (Ppiq : p → p → q) : (p → q) := 
     λ P : p, Ppiq P P
 
-def one_is_not_prime : ¬ is_prime2 1 :=
-    λ (one_is_prime : is_prime2 1),
-    have X : 1 < 1 → 1 < 1 → ¬is_divisible 1 1, from one_is_prime 1,
-    have Y : 1 < 1 → ¬is_divisible 1 1, from ppiqpiq X,
-    have Z : ¬ ¬ is_divisible 1 1 → ¬ 1 < 1, from sorry
+
+
+#check (is_prime2 1)
+
+--∀ (k : nat) (b1 : k < p) (b2 : 1 < k), (¬ is_divisible p k)
+
+
 
 -- ∃ (x : nat) (is_prime x) ↔ ¬ ∀ (x : nat) ¬ is_prime x
 
+
+
+
+def not_true_property : Prop :=
+    ∀ (q : nat), q = 1
+
+def cant_happen1 : ¬ not_true_property :=
+    λ Pnot_true, 
+    have a:  2 = 1, from Pnot_true 2,
+    have b: 1 = 0, from congr_arg (λ (c : nat) , c - 1) a,
+    show false, from nat.no_confusion (eq.symm b)
+
+
+--#check nat.no_confusion (1 : nat)   0 
+
+-- inductive some_inductive_type : 
+
+--inductive natural : Type
+--    | zero : natural
+--    | succ (k : natural) : natural
+
+def zero_ne_one_ : 0 ≠ (1 : ℕ) :=
+    assume h, nat.no_confusion h
+
+def impossible_property : Prop :=
+    ∀ (Pfalse : 1 < 1), 1 = 1
+
+def can_happen : impossible_property :=
+    λ (Pfalse: 1 < 1),
+        have one_ne_one : 1 ≠ 1, from (ne_of_lt Pfalse),
+        have Pfalse : false, from one_ne_one (eq.refl 1),
+        false.elim Pfalse
+
+--def impossible_property : Prop :=
+--    ∀ (Pfalse : false), 1 = 1
+
+--def can_happen : impossible_property :=
+--    λ (Pfalse: false),
+--        false.elime Pfalse
+
+
+--false.elim impossible_
+ 
 
 
 
