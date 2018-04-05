@@ -21,14 +21,13 @@ variable b : nat
 
 #check nat
 
-
 variable d : nat
 
 --#eval multiplication 0 d
 
-def multiply_is_more (a b : nat) (b  ≠ 0) : a <= a * b := sorry
+def multiply_is_more (a b : nat) (b ≠ 0) : a <= a * b := sorry
 
-def never_zero (a b c : nat) (H : b * a = c) (H1 : c ≠ 0): a ≠ 0 := 
+def never_zero (a b c : nat) (H : b * a = c) (H1 : c ≠ 0): a ≠ 0 :=
     λ (Pa0 : a = 0),
     have Pbt0 : b * 0 = c, from eq.subst Pa0 H,
     have Pb0 : b * 0  = 0, from mul_zero b,
@@ -50,7 +49,12 @@ def prime_equiv_right : ∀ (p : nat) (Pp : is_prime2 p), is_prime1 p :=
         and.intro (and.elim_left Pp) (
             have Ppr : ∀ (k : nat), ∀ (b1 : k < p) (b2 : 1 < k), (¬ is_divisible p k), from and.elim_right Pp,
             λ (m : nat), λ (Pmdp : is_divisible p m), or.elim(classical.em (m = 1)) (λ Pme1 : m = 1, or.intro_left (m = p) Pme1) (λ Pmep : m ≠ 1, have Pmep : m = p, from (
-                _
+                have Pn0 : p ≠ 0, from sorry,
+                have mlep : m <= p, from divisor_leq p m (Pn0) Pmdp,
+                have P1lp: 1 < m, from sorry,
+                have Pnmlp: ¬ m < p, from λ (Pmlp : m < p), Ppr m Pmlp P1lp Pmdp,
+                have bleh : m < p ∨ m = p, from iff.elim_left le_iff_lt_or_eq mlep,
+                or.elim bleh (λ mlp : m < p, false.elim (Pnmlp mlp)) (λ blah : m = p, blah) 
             ), show m = 1 ∨ m = p, from or.intro_right (m = 1) Pmep 
             )
         )
