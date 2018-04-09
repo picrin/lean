@@ -17,7 +17,7 @@ def prime_equiv_left : ∀ (p : nat) (Pp: is_prime1 p), (is_prime2 p) :=
                 (or.elim (and.elim_right Pp k Pmdp)) (λ P1 : k = 1, ne_of_lt b2 (eq.symm P1)) (λ P2 : k = p, ne_of_lt b1 P2))
 
 def gt0or0 (a : nat) : a = 0 ∨ a > 0 :=
-    or.elim (em (a = 0)) (λ H : a = 0, or.intro_left (a > 0) H) (λ H : a ≠ 0, or.intro_right (a = 0) (nat.pos_of_ne_zero H))
+    or.elim (classical.em (a = 0)) (λ H : a = 0, or.intro_left (a > 0) H) (λ H : a ≠ 0, or.intro_right (a = 0) (nat.pos_of_ne_zero H))
 
 def nat.le_add_right_of_le: ∀ (n m k : nat) (n_le_m : n <= m), n <= m + k 
     | n m 0 n_le_m := n_le_m
