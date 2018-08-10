@@ -13,7 +13,5 @@ lemma succ_over_equality (a b : natural) (H : a = b) : (natural.succ a) = (natur
 variables a b : natural
 variable H : (a = b)
 
-#check (eq.rec_on H (eq.refl (natural.succ a)))
-
-
+#check eq a b
 --eq H
