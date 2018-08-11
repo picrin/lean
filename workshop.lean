@@ -21,7 +21,7 @@ def purpose_of_life : nat := 42
 #check double 
 --END hide
 
--- Exercise 3. Can you make `triple_and_add` into a function, which takes two arguments, `a` and `b` and produces a sum of a triple of `a` and `b`.
+-- Exercise 3. Can you make `triple_and_add` into a function, which takes two arguments, `a` and `b` and produces a sum of a triple of `a` and a `b`?
 
 def triple_first_and_add : nat → nat → nat :=
     λ a : nat, λ b : nat, sorry
