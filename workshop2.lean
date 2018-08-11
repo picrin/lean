@@ -72,17 +72,47 @@ variable (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy)
 
 def Mandy_and_icecream2 : Mandy_has_icecream → Mandy_is_happy :=
     λ ice_cream_evidence : Mandy_has_icecream,
-        sorry
+        sorry -- you should be able to show that Mandy is happy using exactly the same code.
 
--- Another is through moving the colon after the function name all the way to the right, like this:
+-- Another is through moving the colon after the function name all the way to the right (and removing the ∀), like this:
 
 def Mandy_and_icecream3 (Mandy_has_icecream : Prop)
                         (Mandy_eats_icecream : Prop)
                         (Mandy_is_happy : Prop)
                         (Mandy_rule_1 : Mandy_has_icecream → Mandy_eats_icecream)
-                        (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy) :
+                        (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy)
+                        :
                         Mandy_has_icecream → Mandy_is_happy :=
     λ ice_cream_evidence : Mandy_has_icecream,
-        sorry
+        sorry -- you should be able to show that Mandy is happy using exactly the same code.
 
-#check ((λ (a b : Prop), λ Pa : a, λ Pb : b, and.intro Pa Pb) : (∀ a b : Prop, a → b → a ∧ b))
+-- There are a few further examples worth looking at just now, although you won't be able to fully understand them until you've studied inductive types to a level beyond this tutorial.
+
+-- Consider for example two variables `a : nat` and `b : nat`. Lean has a special, function-like thingy (actually an inductive type), called `eq`. Can you check what is the type of `eq a b`? Given the type information, what do you think you'll be able to do with it?
+
+variable a : nat
+variable b : nat
+
+-- Here you can check the type of `eq a b`.
+
+variable proof_of_a_equals_b : eq a b
+
+-- What is the type of `proof_of_a_equals_b`? Could you tell without `#check`?
+
+-- Typing `eq a b` is not very natural. Lean provides with alternative syntax, `a = b`. Sometimes you might have to translate in your head between `eq a b` and `a = b`, but most of the time the latter is easier to work with.
+
+variable c : nat
+variable d : nat
+
+#check eq c d
+variable proof_of_c_equals_d : c = d
+
+-- Lean provides us with a function `eq.trans`. Can you check its type signature and use it to prove that `e = g`?
+
+def e_equals_g (e : nat) (f : nat) (g : nat) (e_equals_f : e = f) (f_equals_g : f = g) : e = g :=
+    sorry
+
+def e_equals_g_solution (e : nat) (f : nat) (g : nat) (e_equals_f : e = f) (f_equals_g : f = g) : e = g :=
+    eq.trans e_equals_f f_equals_g
+
+-- There are other interesting things you can do with `Prop`, all beyond the scope of this tutorial, but you can check out chapter 3 of "Theorem proving in lean" https://leanprover.github.io/theorem_proving_in_lean/propositions_and_proofs.html
