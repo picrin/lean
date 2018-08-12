@@ -26,13 +26,13 @@
 
 -- Your creative "values as types" example comes here.
 
--- Again, just like the idea of naming parameters in type signatures, "values as types" is pretty much useless on its own. We need two more ideas to even begin talking about the goal of the tutorial. The first idea is called "inductive types". But let's not talk about those until later on in the tutorial. The second idea is called "propositions as types", and it's the "thought experiment" I've alluded to in the introduction to this tutorial, and that's how it all fits together. We're going to look at it in detail in the next section.
+-- Again, just like the idea of naming parameters in type signatures, "values as types" is pretty much useless on its own. We need two more ideas to even begin talking about the goal of the tutorial. The first idea is called "inductive types". But let's not talk about those until later on in the tutorial. The second idea is called "propositions as types", and it's the "thought experiment" I've alluded to in the introduction to this tutorial, and that's how it all fits together.
 
 -- Propositions as types
 
 -- In order to do mathematics in lean we will need a special type, called `Prop`. You can think of it like `nat`, but instead of numbers, this type represents propositions, i.e. statements to which we can assign truth judgments. Examples of propositions are "3 is an even number" (untrue), "Mandy ate icecream last Friday" (we have to ask Mandy!) or "Sam knows the definition of a tensor" (true).
 
--- If p is any proposition, `p : Prop`, we are going to say that the proof of `p` will be any value of type `p`, `proof_of_p : p`. It's really that simple. We can begin with something relatively easy. We are going to assume that when Mandy has ice-cream, she eats it. Further, we will assume that when Mandy eats ice cream she is happy. We will produce a mathematical proof of Mandy's happiness given her pocession of icecream. Let's see!
+-- If p is any proposition, `p : Prop`, we are going to say that the proof of `p` will be any value of type `p`, `proof_of_p : p`. It's really that simple! We can begin with something relatively easy. We are going to assume that when Mandy has ice-cream, she eats it. Further, we will assume that when Mandy eats ice cream she is happy. We will produce a mathematical proof of Mandy's happiness given her pocession of icecream. Let's see!
 
 def Mandy_and_icecream : (∀ (Mandy_has_icecream : Prop)
                         (Mandy_eats_icecream : Prop)
@@ -49,11 +49,11 @@ def Mandy_and_icecream : (∀ (Mandy_has_icecream : Prop)
             sorry -- can you show that Mandy is happy?
 
 def Mandy_and_icecream_solution : (∀ (Mandy_has_icecream : Prop)
-                        (Mandy_eats_icecream : Prop)
-                        (Mandy_is_happy : Prop)
-                        (Mandy_rule_1 : Mandy_has_icecream → Mandy_eats_icecream)
-                        (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy),
-                        Mandy_has_icecream → Mandy_is_happy) :=
+                                (Mandy_eats_icecream : Prop)
+                                (Mandy_is_happy : Prop)
+                                (Mandy_rule_1 : Mandy_has_icecream → Mandy_eats_icecream)
+                                (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy),
+                                Mandy_has_icecream → Mandy_is_happy) :=
     λ (Mandy_has_icecream
         Mandy_eats_icecream
         Mandy_is_happy : Prop)
@@ -62,7 +62,7 @@ def Mandy_and_icecream_solution : (∀ (Mandy_has_icecream : Prop)
         λ ice_cream_evidence : Mandy_has_icecream,
             Mandy_rule_2 (Mandy_rule_1 ice_cream_evidence)
 
--- As you can see there's a lot of clutter in the above example. Lots of variable names are unnecessarily repeated, specifically because we're using the "named parameters" trick. Lean provides us with ways to make things look better. One way is through variables. Specifically
+-- As you can see there's a lot of clutter in the example above. Lots of variable names are unnecessarily repeated, specifically because we're using the "named parameters" trick. Unlike in some of the examples before, we must the "named parameters" trick, because otherwise we can't use the "values as types" trick, and consequently we can't encode proofs of our propositions as relevant types. However, unnecessary clutter is unnessary clutter, and Lean provides us with ways to make things look better. One way is through variables. The code below is equivalent with the code above:
 
 variable (Mandy_has_icecream : Prop)
 variable (Mandy_eats_icecream : Prop)
@@ -73,8 +73,13 @@ variable (Mandy_rule_2 : Mandy_eats_icecream → Mandy_is_happy)
 def Mandy_and_icecream2 : Mandy_has_icecream → Mandy_is_happy :=
     λ ice_cream_evidence : Mandy_has_icecream,
         sorry -- you should be able to show that Mandy is happy using exactly the same code.
+        --Mandy_rule_2 (Mandy_rule_1 ice_cream_evidence)
 
--- Another is through moving the colon after the function name all the way to the right (and removing the ∀), like this:
+
+-- A word of warning. You might be tempted to think of variables as python or C++ variables. Don't. They really are just parameters into the function `Mandy_and_ice_cream2`, and you can verify that with `#check Mandy_and_icecream2`.
+
+
+-- Another method to get rid of clutter is through moving the colon after the function name all the way to the right (and removing the ∀), like this:
 
 def Mandy_and_icecream3 (Mandy_has_icecream : Prop)
                         (Mandy_eats_icecream : Prop)
@@ -86,7 +91,7 @@ def Mandy_and_icecream3 (Mandy_has_icecream : Prop)
     λ ice_cream_evidence : Mandy_has_icecream,
         sorry -- you should be able to show that Mandy is happy using exactly the same code.
 
--- There are a few further examples worth looking at just now, although you won't be able to fully understand them until you've studied inductive types to a level beyond this tutorial.
+-- There is one more example worth looking at just now, although you won't be able to fully understand it until you've studied inductive types to a level beyond this tutorial.
 
 -- Consider for example two variables `a : nat` and `b : nat`. Lean has a special, function-like thingy (actually an inductive type), called `eq`. Can you check what is the type of `eq a b`? Given the type information, what do you think you'll be able to do with it?
 
@@ -115,4 +120,19 @@ def e_equals_g (e : nat) (f : nat) (g : nat) (e_equals_f : e = f) (f_equals_g : 
 def e_equals_g_solution (e : nat) (f : nat) (g : nat) (e_equals_f : e = f) (f_equals_g : f = g) : e = g :=
     eq.trans e_equals_f f_equals_g
 
+-- Can you come up with your own exercise using `eq.symm`? Again, you'll have to check its type signature before you start playing with it.
+
+-- your own exercise using `eq.symm` comes here.
+
 -- There are other interesting things you can do with `Prop`, all beyond the scope of this tutorial, but you can check out chapter 3 of "Theorem proving in lean" https://leanprover.github.io/theorem_proving_in_lean/propositions_and_proofs.html
+
+
+-- Summary.
+
+-- In order to do maths in lean, we need the following 4 ideas:
+-- "named parameters"
+-- "values as types"
+-- propositions as types
+-- inductive types
+
+-- In the next section we'll make a quick overview of inductive types and move straight to the final goal of this tutorial, showing that `a + b = b + a`.
