@@ -26,13 +26,17 @@ def addition_sorry_sorry (a : natural) (b : natural) : natural :=
 def addition_sorry (a : natural) (b : natural) : natural :=
     natural.rec_on b a sorry
 
--- Getting rid of the second sorry is harder. What can be of some help is replacing it with `_` and hovering over it with your pointer. This will tell you that you have to replace the unerscore with a function typed `natural → natural → natural`. What it doesn't tell you is what each of the arguments into the function are going to be. The first argument is going to, effectively `b - 1`. This is OK, because we've dealt with `zero` in the first sorry, and now we can safely assume that `b` was constructed with a `succ`, and can be looked at as `natural.succ prev_b`. The second argument is a bit more magic. It's called the "inductive hypothesis", and it's the result of feeding `prev_b` into our definition. Let's call it `result_on_prev_b`. From here it's not hard to work out that what our definition needs to return is `natural.succ result_on_prev_b`. Can you put all these details together into a working implementation of `addition`?
+
+-- Getting rid of the second sorry is harder. What can be of some help is replacing it with `_` and hovering over it with your pointer. This will tell you that you have to replace the unerscore with a function typed `natural → natural → natural`. What it doesn't tell you is what each of the arguments into the function are going to be. The first argument is going to, effectively `b - 1`. This is OK, because we've dealt with `zero` in the first sorry, and now we can safely assume that `b` was constructed with a `succ`, and can be looked at as `natural.succ prev_b`. The second argument is a bit more magic. It's called the "inductive hypothesis", and it's the result of feeding `prev_b` into our definition of addition. This can be very difficult to comprehend, but as usual, trying a couple of examples should help to develop understanding. For now, let's just call the second argument `result_on_prev_b`. From here it's not hard to work out that what our definition needs to return is `natural.succ result_on_prev_b`. Can you put all these details together into a working implementation of `addition`?
 
 def addition (a : natural) (b : natural) : natural :=
     natural.rec_on b a sorry
 
 def addition_solution (a : natural) (b : natural) : natural :=
     natural.rec_on b a (λ (prev_b : natural) (result_on_prev_b : natural), natural.succ result_on_prev_b)
+
+def addition_solution_solution (a : natural) (b : natural) : natural :=
+    @natural.rec_on (λ x : natural, natural) b a (λ (prev_b : natural) (result_on_prev_b : natural), natural.succ result_on_prev_b)
 
 
 -- set_option pp.all true
